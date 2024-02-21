@@ -10,10 +10,8 @@ const supabase = createClient(
 
 export const readAllProduits = async (req, next) => {
   try {
-    const { data: produits, error } = await supabase
-      .from("produits")
-      .select(
-        `
+    const { data: produits, error } = await supabase.from("produits").select(
+      `
         id,
         nom,
         fournisseur(
@@ -36,8 +34,9 @@ export const readAllProduits = async (req, next) => {
           )
         )
         `
-      )
+    );
     if (error) throw error;
+    console.error(produits);
     const items = produits.map((item) => ({
       id: item.id,
       nom: item.nom,
@@ -108,6 +107,119 @@ export const readProduitById = async (id, next) => {
     item.region = region[0].region;
     item.millesime = millesime[0].nom;
     return item;
+  } catch (error) {
+    console.error(error);
+    next(500);
+  }
+};
+
+export const createProduit = async (req, next) => {
+  const produit = {
+    id: Number,
+    nom: String,
+    description: String,
+    prix: String,
+    couleur: String,
+    volume: String,
+    region: String,
+    millesime: Number,
+    stock: Number,
+    seuilcommande: Number,
+  };
+
+  try {
+    const { data: produitData, error: produitError } = await supabase
+      .from("produits")
+      .insert([
+        {
+          nom: req.nom,
+          description: req.description,
+          fournisseur: req.fournisseur,
+        },
+      ])
+      .select();
+    let { data: categorieData, error: categorieError } = await supabase
+      .from("categorie")
+      .select("*")
+      .eq("nom", req.couleur);
+    if (categorieData.length === 0) {
+      const { data: newCategorieData, error: newCategorieError } =
+        await supabase
+          .from("categorie")
+          .insert([
+            {
+              nom: req.couleur,
+            },
+          ])
+          .select();
+      categorieData = newCategorieData;
+    }
+    const { data: prodCateData, error: prodCateError } = await supabase
+      .from("produit_categorie")
+      .insert([
+        {
+          id_produit: produitData[0].id,
+          id_categorie: categorieData[0].id,
+        },
+      ]);
+    let { data: attributData, error: attributError } = await supabase
+      .from("attribut")
+      .select("*")
+      .eq("nom", req.millesime);
+    if (attributData.length === 0) {
+      const { data: newAttributData, error: newAttributError } = await supabase
+        .from("attribut")
+        .insert([
+          {
+            nom: req.millesime,
+          },
+        ])
+        .select();
+      attributData = newAttributData;
+    }
+    const { data: cateAttributData, error: cateAttributError } = await supabase
+      .from("categorie_attribut")
+      .insert([
+        {
+          id_categorie: categorieData[0].id,
+          id_attribut: attributData[0].id,
+        },
+      ]);
+    let { data: volumeData, error: volumeError } = await supabase
+      .from("option")
+      .select("*")
+      .eq("nom", req.volume);
+    if (volumeData.length === 0) {
+      const { data: newVolumeData, error: newVolumeError } = await supabase
+        .from("option")
+        .insert([
+          {
+            nom: req.volume,
+          },
+        ])
+        .select();
+      volumeData = newVolumeData;
+    }
+    const { data: prixData, error: prixError } = await supabase
+      .from("prix")
+      .insert([
+        {
+          id_produit: produitData[0].id,
+          id_option: volumeData[0].id,
+          prix: req.prix,
+        },
+      ])
+      .select();
+    const { data: stockData, error: stockError } = await supabase
+      .from("stocks")
+      .insert([
+        {
+          id_prix: prixData[0].id,
+          quantite: req.stock,
+          seuilcommande: req.seuilcommande,
+        },
+      ]);
+    return { id: produitData[0].id };
   } catch (error) {
     console.error(error);
     next(500);

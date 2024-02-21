@@ -1,12 +1,13 @@
 import express from "express";
 import { getAllProduits } from "../actions/produits/getAllProduits.js";
 import { getProduitById } from "../actions/produits/getProduitById.js";
+import { postProduit } from "../actions/produits/createProduit.js";
 const router = express.Router();
 
 router
   .route("/")
   .get(getAllProduits)
-  // .post(createProduit)
+  .post(postProduit)
   .all((req, res, next) => next(405));
 
 router

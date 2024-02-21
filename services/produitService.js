@@ -12,42 +12,39 @@ export const readAllProduits = async (req, next) => {
   try {
     const { data: produits, error } = await supabase
       .from("produits")
-      .select("*");
+      .select(
+        `
+        id,
+        nom,
+        fournisseur(
+          region
+        ),
+        prix(
+          prix,
+          id_option(
+            nom
+          )
+        ),
+        produit_categorie(
+          categorie(
+            nom,
+            categorie_attribut(
+              attribut(
+                nom
+              )
+            )
+          )
+        )
+        `
+      )
     if (error) throw error;
-    for (let i = 0; i < produits.length; i++) {
-      const { data: idCouleur } = await supabase
-        .from("produit_categorie")
-        .select("id_categorie")
-        .eq("id_produit", produits[i].id);
-      const { data: produitCouleur } = await supabase
-        .from("categorie")
-        .select("*")
-        .eq("id", idCouleur[0].id_categorie);
-      const { data: produitPrix } = await supabase
-        .from("prix")
-        .select("*")
-        .eq("id_produit", produits[i].id);
-      const { data: volume } = await supabase
-        .from("option")
-        .select("nom")
-        .eq("id", produitPrix[0].id_option);
-      const { data: region } = await supabase
-        .from("fournisseur")
-        .select("region")
-        .eq("id", produits[i].fournisseur);
-
-      produits[i].couleur = produitCouleur[0].nom;
-      produits[i].prix = produitPrix[0].prix;
-      produits[i].volume = volume[0].nom;
-      produits[i].region = region[0].region;
-    }
     const items = produits.map((item) => ({
       id: item.id,
       nom: item.nom,
-      couleur: item.couleur,
-      prix: item.prix,
-      volume: item.volume,
-      region: item.region,
+      couleur: item.produit_categorie[0].categorie.nom,
+      prix: item.prix[0].prix,
+      volume: item.prix[0].id_option.nom,
+      region: item.fournisseur.region,
     }));
     return items;
   } catch (error) {

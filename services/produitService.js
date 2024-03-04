@@ -36,7 +36,52 @@ export const readAllProduits = async (req, next) => {
         `
     );
     if (error) throw error;
-    console.error(produits);
+    const items = produits.map((item) => ({
+      id: item.id,
+      nom: item.nom,
+      couleur: item.produit_categorie[0].categorie.nom,
+      prix: item.prix[0].prix,
+      volume: item.prix[0].id_option.nom,
+      region: item.fournisseur.region,
+    }));
+    return items;
+  } catch (error) {
+    console.error(error);
+    next(500);
+  }
+};
+
+export const readFavoritesProduits = async (req, next) => {
+  try {
+    const { data: produits, error } = await supabase
+      .from("produits")
+      .select(
+        `
+        id,
+        nom,
+        fournisseur(
+          region
+        ),
+        prix(
+          prix,
+          id_option(
+            nom
+          )
+        ),
+        produit_categorie(
+          categorie(
+            nom,
+            categorie_attribut(
+              attribut(
+                nom
+              )
+            )
+          )
+        )
+        `
+      )
+      .eq("favorite", true);
+    if (error) throw error;
     const items = produits.map((item) => ({
       id: item.id,
       nom: item.nom,
@@ -114,18 +159,18 @@ export const readProduitById = async (id, next) => {
 };
 
 export const createProduit = async (req, next) => {
-  const produit = {
-    id: Number,
-    nom: String,
-    description: String,
-    prix: String,
-    couleur: String,
-    volume: String,
-    region: String,
-    millesime: Number,
-    stock: Number,
-    seuilcommande: Number,
-  };
+  // const produit = {
+  //   id: Number,
+  //   nom: String,
+  //   description: String,
+  //   prix: String,
+  //   couleur: String,
+  //   volume: String,
+  //   region: Number, (id fournisseur)
+  //   millesime: Number,
+  //   stock: Number,
+  //   seuilcommande: Number,
+  // };
 
   try {
     const { data: produitData, error: produitError } = await supabase
@@ -220,6 +265,37 @@ export const createProduit = async (req, next) => {
         },
       ]);
     return { id: produitData[0].id };
+  } catch (error) {
+    console.error(error);
+    next(500);
+  }
+};
+
+export const updateStockProduit = async (id, req, next) => {
+  try {
+    const { data: stockData, error: stockError } = await supabase
+      .from("stocks")
+      .update({
+        quantite: req.quantite,
+        seuilcommande: req.seuilcommande,
+      })
+      .eq("id", id);
+    return { stockData };
+  } catch (error) {
+    console.error(error);
+    next(500);
+  }
+};
+
+export const updatePrixProduit = async (id, req, next) => {
+  try {
+    const { data: prixData, error: prixError } = await supabase
+      .from("prix")
+      .update({
+        prix: req.prix,
+      })
+      .eq("id", id);
+    return { prixData };
   } catch (error) {
     console.error(error);
     next(500);

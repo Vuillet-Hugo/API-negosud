@@ -2,6 +2,7 @@ import express from "express";
 import { getAllProduits } from "../actions/produits/getAllProduits.js";
 import { getProduitById } from "../actions/produits/getProduitById.js";
 import { postProduit } from "../actions/produits/createProduit.js";
+import { putProduitById } from "../actions/produits/putProduitById.js";
 const router = express.Router();
 
 router
@@ -13,7 +14,7 @@ router
 router
   .route("/:id")
   .get(getProduitById)
-  // .put(updateProduitById)
+  .put(putProduitById)
   // .delete(deleteProduitById)
   .all((req, res, next) => next(405));
 

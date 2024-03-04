@@ -1,4 +1,5 @@
 import { readProduitById } from "../../services/produitService.js";
+import { readFavoritesProduits } from "../../services/produitService.js";
 
 export const getProduitById = async (req, res, next) => {
   try {
@@ -6,11 +7,17 @@ export const getProduitById = async (req, res, next) => {
     if (!id) {
       next(400);
     } else {
-      const produit = await readProduitById(id);
-      if (!produit) {
-        next(404);
+      if (id === "favorites") {
+        const produits = await readFavoritesProduits();
+        res.json(produits);
       } else {
-        res.json(produit);
+        const produit = await readProduitById(id);
+
+        if (!produit) {
+          next(404);
+        } else {
+          res.json(produit);
+        }
       }
     }
   } catch (error) {

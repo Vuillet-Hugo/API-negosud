@@ -1,13 +1,10 @@
-import express from 'express';
+import express from "express";
+import { postUserAction } from "../actions/users/createUserAction.js";
 
 const router = express.Router();
 
-router
-    .route('/')
-    .get(getUsersAction);
+router.route("/").post(postUserAction);
 
-router
-    .route('/:id')
-    .get(getUserByIdAction);
+// router.route("/:id").get(getUserByIdAction);
 
 export default router;

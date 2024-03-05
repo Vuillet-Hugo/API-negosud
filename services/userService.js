@@ -18,6 +18,7 @@ export const createUser = async (user) => {
   // password: string,
   // civilite: Number,
   // dateNaissance: string,
+  // role: Number,
   // }
   try {
     const { data, error } = await supabase.from("utilisateur").insert([
@@ -30,6 +31,7 @@ export const createUser = async (user) => {
         motdepasse: user.password,
         civilite: user.civilite,
         date_de_naissance: user.dateNaissance,
+        role: user.role,
       },
     ]);
     if (error) throw error;

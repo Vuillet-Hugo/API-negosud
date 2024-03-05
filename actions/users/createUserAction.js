@@ -11,6 +11,7 @@ export const postUserAction = async (req, res, next) => {
       "password",
       "civilite",
       "dateNaissance",
+      "role",
     ];
     for (const field of requiredFields) {
       if (!req.body.hasOwnProperty(field) || !req.body[field]) {

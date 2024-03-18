@@ -35,7 +35,21 @@ export const createUser = async (user) => {
       },
     ]);
     if (error) throw error;
-    return data;
+    return "data";
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+export const getUserByEmail = async (email) => {
+  try {
+    const { data: user, error } = await supabase
+      .from("utilisateur")
+      .select("*")
+      .eq("email", email);
+    if (error) throw error;
+    return user;
   } catch (error) {
     console.error(error);
     throw error;

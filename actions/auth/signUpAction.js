@@ -1,4 +1,5 @@
 import { createUser } from "../../services/userService.js";
+import { hashPassword } from "../../services/passwordService.js";
 
 export const postUserAction = async (req, res, next) => {
   try {
@@ -20,6 +21,7 @@ export const postUserAction = async (req, res, next) => {
         });
       }
     }
+    req.body.password = await hashPassword(req.body.password);
     const user = await createUser(req.body);
     res.json(user);
   } catch (error) {

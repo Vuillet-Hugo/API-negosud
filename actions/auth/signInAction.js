@@ -1,12 +1,18 @@
 import { authVerif } from "../../services/authService.js";
+import { generateAccessAndRefreshTokens } from "../../services/tokenService.js";
 
 export const signin = async (req, res, next) => {
   try {
     const { email, password } = req.body;
     const user = await authVerif(email, password);
-    console.error("signin", email, password, user);
+
+    const payload = { user };
+    const { access_token, refresh_token } =
+      await generateAccessAndRefreshTokens(payload);
+
     res.status(200).json({
-      message: "Utilisateur connecté",
+      access_token: access_token,
+      refresh_token: refresh_token,
     });
   } catch (error) {
     console.error(error);

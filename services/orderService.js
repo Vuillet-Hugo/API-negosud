@@ -50,3 +50,17 @@ export const createOrderLine = async (order, orderId) => {
     throw error;
   }
 };
+
+export const getOneOrderById = async (orderId) => {
+  try {
+    const { data: order, error: orderError } = await supabase
+      .from("ligne_commande")
+      .select("*")
+      .eq("id_commande", orderId);
+    if (orderError) throw orderError;
+    return order;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};

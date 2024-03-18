@@ -6,6 +6,7 @@ import cors from "cors";
 import produitRouter from "./routes/produits.js";
 import usersRouter from "./routes/users.js";
 import authRouter from "./routes/auth.js";
+import orderRouter from "./routes/order.js";
 
 import catch404Errors from "./midlewares/catch404errors.js";
 import catchAllErrors from "./midlewares/catchAllErrors.js";
@@ -33,6 +34,7 @@ app.use((req, res, next) => {
 app.use("/produits", produitRouter);
 app.use("/users", usersRouter);
 app.use("/auth", authRouter);
+app.use("/orders", orderRouter);
 
 app.use(catch404Errors);
 

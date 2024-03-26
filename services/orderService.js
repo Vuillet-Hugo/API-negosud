@@ -39,7 +39,7 @@ export const createOrderLine = async (order, orderId) => {
         {
           id_produit: order.id_produit,
           quantite: order.quantite,
-          prix: orderLinePrice[0].prix,
+          prix: orderLinePrice,
           id_commande: orderId,
         },
       ]);
